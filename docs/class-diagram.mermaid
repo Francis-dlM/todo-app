@@ -1,0 +1,154 @@
+classDiagram
+    class TaskList {
+        +string id
+        +string name
+        +string color
+        +string icon
+        +number order
+        +Date createdAt
+        +boolean isDefault
+    }
+
+    class Task {
+        +string id
+        +string title
+        +string note
+        +string listId
+        +boolean isCompleted
+        +boolean isImportant
+        +boolean isMyDay
+        +string myDayDate
+        +Date dueDate
+        +Date reminder
+        +RepeatRule repeat
+        +Subtask[] subtasks
+        +number order
+        +Date createdAt
+        +Date completedAt
+    }
+
+    class Subtask {
+        +string id
+        +string title
+        +boolean isCompleted
+        +number order
+    }
+
+    class RepeatRule {
+        +RepeatFrequency frequency
+        +number interval
+        +number[] byDayOfWeek
+        +number byDayOfMonth
+        +Date until
+    }
+
+    class RepeatFrequency {
+        <<enumeration>>
+        DAILY
+        WEEKLY
+        MONTHLY
+        YEARLY
+    }
+
+    class AppDatabase {
+        +Dexie.Table~Task~ tasks
+        +Dexie.Table~TaskList~ lists
+        +init() Promise~void~
+        +getInitialData() Promise~InitialData~
+    }
+
+    class TaskService {
+        +createTask(data: CreateTaskInput) Promise~Task~
+        +updateTask(id: string, data: Partial~Task~) Promise~Task~
+        +deleteTask(id: string) Promise~void~
+        +completeTask(id: string) Promise~Task~
+        +uncompleteTask(id: string) Promise~Task~
+        +getTasksByList(listId: string) Promise~Task[]~
+        +getImportantTasks() Promise~Task[]~
+        +getPlannedTasks() Promise~Task[]~
+        +searchTasks(keyword: string) Promise~Task[]~
+        +generateRepeatTask(task: Task) Promise~Task~
+        +reorderTasks(taskIds: string[]) Promise~void~
+    }
+
+    class ListService {
+        +createList(data: CreateListInput) Promise~TaskList~
+        +updateList(id: string, data: Partial~TaskList~) Promise~TaskList~
+        +deleteList(id: string) Promise~void~
+        +getAllLists() Promise~TaskList[]~
+        +reorderLists(listIds: string[]) Promise~void~
+    }
+
+    class MyDayService {
+        +addToMyDay(taskId: string) Promise~Task~
+        +removeFromMyDay(taskId: string) Promise~Task~
+        +getMyDayTasks() Promise~Task[]~
+        +resetMyDay() Promise~void~
+        +getSmartSuggestions() Promise~Task[]~
+    }
+
+    class NotificationService {
+        +requestPermission() Promise~NotificationPermission~
+        +scheduleReminder(task: Task) void
+        +cancelReminder(taskId: string) void
+        +checkAndNotify() void
+    }
+
+    class TaskStore {
+        +Task[] tasks
+        +string currentListId
+        +boolean isLoading
+        +loadTasks(listId: string) Promise~void~
+        +addTask(data: CreateTaskInput) Promise~void~
+        +toggleComplete(id: string) Promise~void~
+        +toggleImportant(id: string) Promise~void~
+        +removeTask(id: string) Promise~void~
+        +updateTaskDetail(id: string, data: Partial~Task~) Promise~void~
+        +reorderTasks(taskIds: string[]) Promise~void~
+    }
+
+    class ListStore {
+        +TaskList[] lists
+        +string activeListId
+        +boolean isLoading
+        +loadLists() Promise~void~
+        +addList(data: CreateListInput) Promise~void~
+        +updateList(id: string, data: Partial~TaskList~) Promise~void~
+        +removeList(id: string) Promise~void~
+        +setActiveList(id: string) void
+    }
+
+    class MyDayStore {
+        +Task[] myDayTasks
+        +Task[] suggestions
+        +string lastVisitDate
+        +boolean isLoading
+        +loadMyDay() Promise~void~
+        +addToMyDay(taskId: string) Promise~void~
+        +removeFromMyDay(taskId: string) Promise~void~
+        +checkAndReset() Promise~void~
+        +loadSuggestions() Promise~void~
+    }
+
+    class UIStore {
+        +boolean sidebarOpen
+        +string detailTaskId
+        +boolean isDetailOpen
+        +string activeMobileTab
+        +toggleSidebar() void
+        +openDetail(taskId: string) void
+        +closeDetail() void
+        +setMobileTab(tab: string) void
+    }
+
+    Task "1" --> "0..*" Subtask : contains
+    Task "0..1" --> "0..1" RepeatRule : has
+    RepeatRule --> RepeatFrequency : uses
+    Task " *" --> "1" TaskList : belongsTo
+    TaskService --> AppDatabase : reads/writes
+    ListService --> AppDatabase : reads/writes
+    MyDayService --> AppDatabase : reads/writes
+    NotificationService --> AppDatabase : reads
+    TaskStore --> TaskService : calls
+    ListStore --> ListService : calls
+    MyDayStore --> MyDayService : calls

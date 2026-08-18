@@ -1,0 +1,92 @@
+sequenceDiagram
+    participant User as 用户
+    participant TI as TaskInput组件
+    participant TS as TaskStore
+    participant TaskSvc as TaskService
+    participant DB as AppDatabase(Dexie)
+    participant TL as TaskList组件
+
+    User->>TI: 输入任务标题 + 按回车
+    TI->>TI: 验证标题非空 & 长度 ≤ 500
+    TI->>TS: addTask({title, listId})
+    TS->>TaskSvc: createTask({title, listId})
+    TaskSvc->>TaskSvc: 生成 nanoid ID
+    TaskSvc->>TaskSvc: 设置默认值(order, isCompleted等)
+    TaskSvc->>DB: db.tasks.add(task)
+    DB-->>TaskSvc: 返回成功
+    TaskSvc-->>TS: 返回新建 Task 对象
+    TS->>TS: 更新 tasks 数组
+    TS-->>TI: 状态更新触发重渲染
+    TI->>TI: 清空输入框
+    TS-->>TL: tasks 变更触发 TaskList 重渲染
+    TL->>User: 新任务出现在列表中
+
+---
+
+sequenceDiagram
+    participant User as 用户
+    participant MDP as MyDayPage组件
+    participant MDS as MyDayStore
+    participant MDSvc as MyDayService
+    participant DB as AppDatabase(Dexie)
+    participant DateUtil as date工具
+
+    User->>MDP: 点击侧边栏"我的一天"
+    MDP->>MDS: loadMyDay()
+    MDS->>MDSvc: getMyDayTasks()
+    MDSvc->>DB: db.tasks.where("isMyDay").equals(1).toArray()
+    DB-->>MDSvc: 返回原始任务列表
+    MDSvc->>MDSvc: 过滤 myDayDate === 今天
+    MDSvc-->>MDS: 返回当日任务列表
+    MDS->>MDS: checkAndReset()
+    MDS->>DateUtil: 获取今天日期
+    DateUtil-->>MDS: "2026-05-21"
+    MDS->>MDS: 比较 lastVisitDate !== 今天
+    alt 日期已变（跨天）
+        MDS->>MDSvc: resetMyDay()
+        MDSvc->>DB: db.tasks.where("isMyDay").equals(1).filter(myDayDate !== 今天).modify({isMyDay: false, myDayDate: null})
+        DB-->>MDSvc: 重置完成
+        MDSvc-->>MDS: 返回更新结果
+    end
+    MDS->>MDS: 更新 lastVisitDate = 今天
+    alt 当日任务为空
+        MDS->>MDSvc: getSmartSuggestions()
+        MDSvc->>DB: db.tasks.where("dueDate").belowOrEqual(今天).filter(!isCompleted)
+        DB-->>MDSvc: 返回逾期/今日截止任务
+        MDSvc-->>MDS: 返回推荐列表
+    end
+    MDS-->>MDP: 返回 myDayTasks + suggestions
+    MDP->>User: 渲染"我的一天"页面
+
+---
+
+sequenceDiagram
+    participant User as 用户
+    participant TI as TaskItem组件
+    participant UIS as UIStore
+    participant TD as TaskDetail组件
+    participant Hook as useAutoSave
+    participant TS as TaskStore
+    participant TaskSvc as TaskService
+    participant DB as AppDatabase(Dexie)
+
+    User->>TI: 点击任务行
+    TI->>UIS: openDetail(taskId)
+    UIS-->>TD: isDetailOpen=true + detailTaskId
+    TD->>TD: 从 TaskStore.tasks 查找 task
+    TD->>User: 渲染详情抽屉/全屏
+
+    User->>TD: 编辑任务标题
+    TD->>Hook: 触发 onChange
+    Hook->>Hook: debounce 300ms
+    Hook->>TS: updateTaskDetail(id, {title: newTitle})
+    TS->>TaskSvc: updateTask(id, {title: newTitle})
+    TaskSvc->>DB: db.tasks.update(id, {title: newTitle})
+    DB-->>TaskSvc: 更新成功
+    TaskSvc-->>TS: 返回更新后的 Task
+    TS->>TS: 更新 tasks 数组中对应项
+    TS-->>TD: 状态更新，UI 同步
+
+    User->>TD: 点击"加入我的一天"开关
+    TD->>TS: toggleMyDay(taskId) / MDS.addToMyDay(taskId)
+    Note over TS,DB: 类似 updateTask 流程

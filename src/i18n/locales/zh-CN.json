@@ -1,0 +1,102 @@
+{
+  "app": {
+    "name": "任务管理",
+    "loading": "加载中..."
+  },
+  "nav": {
+    "myDay": "我的一天",
+    "important": "重要",
+    "planned": "计划内",
+    "inbox": "任务",
+    "search": "搜索",
+    "all": "全部"
+  },
+  "task": {
+    "addPlaceholder": "添加任务",
+    "addToList": "添加到",
+    "complete": "完成",
+    "uncomplete": "撤销完成",
+    "delete": "删除任务",
+    "deleteConfirm": "确定要永久删除此任务吗？",
+    "deleteConfirmTitle": "删除确认",
+    "titleRequired": "任务标题不能为空",
+    "titleTooLong": "任务标题不能超过 {{max}} 个字符",
+    "completed": "已完成",
+    "uncompleted": "未完成",
+    "noTasks": "暂无任务",
+    "addSubtask": "添加子任务",
+    "subtask": "子任务",
+    "addToMyDay": "添加到我的一天",
+    "removeFromMyDay": "从我的一天移除",
+    "setReminder": "设置提醒",
+    "setDueDate": "设置截止日期",
+    "setRepeat": "设置重复",
+    "moveToList": "移动到清单",
+    "important": "标记为重要",
+    "notImportant": "取消重要标记",
+    "setPriority": "优先级",
+    "priorityNone": "无优先级",
+    "priorityP0": "P0 紧急",
+    "priorityP1": "P1 高",
+    "priorityP2": "P2 中",
+    "priorityP3": "P3 低"
+  },
+  "list": {
+    "add": "新建清单",
+    "edit": "编辑清单",
+    "delete": "删除清单",
+    "deleteConfirm": "清单「{{name}}」将被删除，其中的任务会移至默认清单。",
+    "deleteConfirmTitle": "删除清单",
+    "defaultCannotDelete": "默认清单无法删除",
+    "namePlaceholder": "清单名称",
+    "nameRequired": "清单名称不能为空",
+    "nameTooLong": "清单名称不能超过 {{max}} 个字符",
+    "selectColor": "选择颜色"
+  },
+  "myDay": {
+    "greeting": {
+      "morning": "早上好",
+      "afternoon": "下午好",
+      "evening": "晚上好"
+    },
+    "today": "今天",
+    "suggestions": "智能建议",
+    "noTasks": "我的一天，从此刻开始",
+    "noTasksDesc": "将任务添加到我的一天，专注完成今日目标"
+  },
+  "date": {
+    "today": "今天",
+    "tomorrow": "明天",
+    "yesterday": "昨天",
+    "nextWeek": "下周",
+    "overdue": "已过期",
+    "noDate": "无日期",
+    "dueToday": "今天截止",
+    "dueTomorrow": "明天截止",
+    "dueNextWeek": "下周截止"
+  },
+  "repeat": {
+    "daily": "每天",
+    "weekly": "每周",
+    "monthly": "每月",
+    "yearly": "每年",
+    "custom": "自定义",
+    "none": "不重复"
+  },
+  "search": {
+    "placeholder": "搜索任务",
+    "noResults": "未找到匹配的任务",
+    "results": "搜索结果"
+  },
+  "common": {
+    "confirm": "确认",
+    "cancel": "取消",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑",
+    "close": "关闭",
+    "ok": "确定",
+    "yes": "是",
+    "no": "否"
+  }
+}
